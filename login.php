@@ -166,7 +166,7 @@ $conn->close();
             <!-- Guest Mode Option -->
             <form action="login.php" method="POST">
                 <button type="submit" name="guest_mode"
-                        class="w-full bg-gray-500 text-white py-3 rounded-md font-semibold hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-lg transform hover:scale-105 mt-4 button-animated">
+                        class="w-full bg-gray-500 text-white py-3 rounded-md font-semibold hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-lg transform hover:scale-105 mt-4 button-animated">
                     Continue as Guest
                 </button>
             </form>
