@@ -29,12 +29,10 @@ $school_location = "Himbari, Joar Sahara Bazar Road, Vatara, Dhaka - 1229";
 $contact_number = "01711459087";
 
 // Image paths
-// The main background image for the dashboard
 $school_background_image = "1c0c9582-e847-47fa-ade3-44abc1183ebc.jpg";
-// The three images to be displayed side-by-side
-$image1 = "Classroom.jpg"; // Left image
-$image2 = "student.jpg";      // Middle (larger) image
-$image3 = "assembly.jpg";     // Right image
+$image1 = "Classroom.jpg";
+$image2 = "student.jpg";
+$image3 = "assembly.jpg";
 ?>
 
 <!DOCTYPE html>
@@ -43,185 +41,467 @@ $image3 = "assembly.jpg";     // Right image
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Cambric School and College</title>
-    <!-- Tailwind CSS CDN for styling -->
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for 'Inter' font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        /* Custom CSS for body styling */
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --accent: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif; /* Apply Inter font */
-            background-color: #f0f2f5; /* Light gray background */
-            min-height: 100vh; /* Minimum height of viewport */
-            margin: 0; /* Remove default body margin */
-            background-image: url('<?php echo $school_background_image; ?>'); /* Set the background image */
-            background-size: cover; /* Cover the entire background */
-            background-position: center; /* Center the image */
-            background-repeat: no-repeat; /* Do not repeat the image */
-            background-attachment: fixed; /* Keep the background fixed during scroll */
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            line-height: 1.6;
         }
-        /* Overlay to make text readable over the background image */
-        .overlay {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white overlay */
-            min-height: 100vh; /* Ensure overlay covers full height */
-            display: flex; /* Use flexbox for layout */
-            flex-direction: column; /* Stack items vertically */
-            align-items: center; /* Center items horizontally */
-            justify-content: center; /* Center items vertically */
-            padding: 2rem; /* Add padding around the content */
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        /* Styling for the main content card */
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 80px 2rem 2rem;
+            background: radial-gradient(circle at 20% 50%, rgba(37, 99, 235, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.1) 0%, transparent 50%);
+        }
+
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            margin-bottom: 2rem;
+        }
+
+        /* Cards Section */
+        .section {
+            padding: 100px 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
         .card {
-            background-color: #ffffff; /* White background for the card */
-            border-radius: 0.75rem; /* Rounded corners */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow effect */
-            padding: 2rem; /* Padding inside the card */
-            width: 100%; /* Full width on small screens */
-            max-width: 4xl; /* Maximum width for larger screens */
-            text-align: center; /* Center text within the card */
-            margin-bottom: 2rem; /* Margin below the card */
-        }
-        /* Styling for the teacher list */
-        .teacher-list {
-            list-style: none; /* Remove default list bullets */
-            padding: 0; /* Remove default list padding */
-            text-align: left; /* Align text to the left within the list */
-            columns: 2; /* Display in two columns on larger screens */
-            column-gap: 2rem; /* Gap between columns */
-        }
-        .teacher-list li {
-            margin-bottom: 0.5rem; /* Margin between list items */
-            font-size: 1rem; /* Font size for list items */
-            color: #4a5568; /* Gray text color */
-        }
-        /* Responsive adjustment for teacher list on smaller screens */
-        @media (max-width: 768px) {
-            .teacher-list {
-                columns: 1; /* Display in a single column on small screens */
-            }
-        }
-        /* Animation for images on hover */
-        .animated-image {
-            transition: transform 0.3s ease-in-out; /* Smooth transition for transform property */
-        }
-        .animated-image:hover {
-            transform: scale(1.05); /* Slightly enlarge image on hover */
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
         }
 
-        /* Dashboard specific animation for the main card */
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent);
         }
 
-        .animated-card {
-            animation: fadeInScale 0.5s ease-out forwards;
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
         }
 
-        /* Button styling with animation */
-        .button-animated {
-            transition: all 0.2s ease-in-out;
-            background-image: linear-gradient(to right, #4f46e5, #6366f1); /* Gradient for buttons */
+        .card p {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
         }
 
-        .button-animated:hover {
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #1e293b;
+        }
+
+        .btn-primary:hover {
+            background: #d97706;
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            background-image: linear-gradient(to right, #6366f1, #4f46e5); /* Reverse gradient on hover */
         }
 
-        .button-animated:active {
-            transform: translateY(1px);
-            box-shadow: none;
+        .btn-outline {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--accent);
+            color: #1e293b;
+            transform: translateY(-2px);
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s;
+        }
+
+        .gallery-image:hover {
+            transform: scale(1.05);
+        }
+
+        /* Teacher List */
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .teacher-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 3rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .image-gallery {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <div class="overlay">
-        <div class="card animated-card">
-            <h2 class="text-5xl font-extrabold text-center text-blue-800 mb-6">Welcome to Cambric School and College!</h2>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">Cambric<span>School</span></a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#teachers">Teachers</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li><a href="logout.php" class="btn btn-outline">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
 
-            <!-- Images Section - Side by Side with specific widths and Animation -->
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-8 mt-4">
-                <!-- Left Image (45% width) -->
-                <img src="<?php echo htmlspecialchars($image1); ?>" alt="School Classroom Photo" class="animated-image rounded-lg shadow-md w-[30%] h-auto object-cover">
-                <!-- Middle Image (60% width) -->
-                <img src="<?php echo htmlspecialchars($image2); ?>" alt="School Group Photo" class="animated-image rounded-lg shadow-md w-[40%] h-auto object-cover">
-                <!-- Right Image (45% width) -->
-                <img src="<?php echo htmlspecialchars($image3); ?>" alt="School Assembly Photo" class="animated-image rounded-lg shadow-md w-[30%] h-auto object-cover">
-            </div>
-
-            <!-- Display personalized welcome message based on login status -->
-            <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-                <p class="text-2xl text-gray-700 mb-4">Hello, <span class="font-semibold text-blue-600"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</p>
-                <p class="text-xl text-gray-600 mb-8">Your role: <span class="font-medium text-purple-600"><?php echo htmlspecialchars($_SESSION['role']); ?></span></p>
-            <?php else: ?>
-                <p class="text-2xl text-gray-700 mb-4">Hello, <span class="font-semibold text-blue-600">Guest</span>!</p>
-                <p class="text-xl text-gray-600 mb-8">You are viewing public information.</p>
-            <?php endif; ?>
-
-            <p class="text-lg text-gray-500 mb-10">This is your dashboard. Explore the information below.</p>
-
-            <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
-               
-            <?php else: ?>
-                <!-- Message for guest users -->
-                <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <span class="block sm:inline">You are in Guest Mode. Register to access personalized information like fee dues and exam schedules!</span>
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Welcome to Cambric School and College</h1>
+                
+                <!-- Personalized Welcome Message -->
+                <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+                    <p class="text-2xl text-gray-300 mb-4">Hello, <span class="font-semibold text-accent"><?php echo htmlspecialchars($_SESSION['username']); ?></span>!</p>
+                    <p class="text-xl text-gray-400 mb-8">Your role: <span class="font-medium text-accent"><?php echo htmlspecialchars($_SESSION['role']); ?></span></p>
+                <?php else: ?>
+                    <p class="text-2xl text-gray-300 mb-4">Hello, <span class="font-semibold text-accent">Guest</span>!</p>
+                    <p class="text-xl text-gray-400 mb-8">You are viewing public information.</p>
+                <?php endif; ?>
+                            <!-- Teacher Portal Section -->
+            <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && $_SESSION['role'] === 'teacher'): ?>
+                <div class="card mt-8 text-center">
+                    <h3 class="text-2xl font-bold text-accent mb-4">Teacher Portal</h3>
+                    <p class="text-gray-400 mb-4">Access your personal information and teaching resources</p>
+                    <div class="flex justify-center gap-4">
+                        <a href="teacher_info.php" class="btn btn-primary">
+                            <i class="fas fa-user-circle"></i> My Information
+                        </a>
+                    </div>
                 </div>
             <?php endif; ?>
 
-            <!-- The section with the two buttons, now side by side on medium screens and up -->
-            <div class="flex flex-col md:flex-row justify-center items-center gap-4 mt-8 mb-8">
-                <!-- Admission Information Button -->
-                <a href="admission.php" class="inline-block w-full md:w-auto px-8 py-3 rounded-md font-semibold text-white shadow-lg button-animated">
-                    Admission Information
-                </a>
-                <!-- Academic Information Button -->
-                <a href="academic.php" class="inline-block w-full md:w-auto px-8 py-3 rounded-md font-semibold text-white shadow-lg button-animated">
-                    Academic Information
-                </a>
-                <a href="cocurricular.php" class="inline-block w-full md:w-auto px-8 py-3 rounded-md font-semibold text-white shadow-lg button-animated">
-                   Co-Curricular Activities
-                </a>
-            </div>
+                <p class="text-lg text-gray-400">Empowering students through quality education and holistic development since our inception.</p>
 
-            <!-- Teachers Section (public information) -->
-            <div class="mt-12 mb-12">
-                <h3 class="text-3xl font-bold text-gray-800 mb-6">Our Esteemed Teachers</h3>
-                <ul class="teacher-list mx-auto max-w-lg">
-                    <?php foreach ($teachers as $teacher): ?>
-                        <li class="flex items-center text-gray-700">
-                            <!-- SVG icon for list items -->
-                            <svg class="w-5 h-5 text-blue-500 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                            <?php echo htmlspecialchars($teacher); ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
+                <?php if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true): ?>
+                    <!-- User specific content -->
+                <?php else: ?>
+                    <div class="bg-blue-900/50 border border-blue-400 text-blue-200 px-4 py-3 rounded-lg mb-6 mt-4">
+                        <span class="block sm:inline">You are in Guest Mode. Register to access personalized information!</span>
+                    </div>
+                <?php endif; ?>
 
-            <!-- Logout Button -->
-            <a href="logout.php" class="inline-block bg-red-600 text-white py-3 px-8 rounded-md font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-lg transform hover:scale-105 mt-8">
-                Logout
-            </a>
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <a href="admission.php" class="btn btn-primary">
+                        <i class="fas fa-user-graduate"></i>Admission Info
+                    </a>
+                    <a href="academic.php" class="btn btn-outline">
+                        <i class="fas fa-book"></i>Academic Info
+                    </a>
+                    <a href="cocurricular.php" class="btn btn-outline">
+                        <i class="fas fa-futbol"></i>Co-curricular
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-images">
+                <div class="image-gallery">
+                    <img src="<?php echo htmlspecialchars($image1); ?>" alt="School Classroom" class="gallery-image floating">
+                    <img src="<?php echo htmlspecialchars($image2); ?>" alt="Students" class="gallery-image floating" style="animation-delay: 0.5s;">
+                    <img src="<?php echo htmlspecialchars($image3); ?>" alt="School Assembly" class="gallery-image floating" style="animation-delay: 1s;">
+                </div>
+            </div>
         </div>
+    </section>
 
-        <!-- Footer Contact Information (public information) -->
-        <footer class="bg-blue-700 text-white p-6 rounded-lg shadow-xl w-full max-w-4xl text-center mt-8">
-            <h4 class="text-2xl font-semibold mb-3">Contact Us</h4>
-            <p class="text-lg mb-2">
-                <span class="font-medium">Location:</span> <?php echo htmlspecialchars($school_location); ?>
-            </p>
-            <p class="text-lg">
-                <span class="font-medium">Contact Number:</span> <?php echo htmlspecialchars($contact_number); ?>
-            </p>
-        </footer>
-    </div>
+    <!-- Features Section -->
+    <section id="features" class="section">
+        <h2 class="section-title">School Features</h2>
+        <div class="cards-grid">
+            <div class="card">
+                <h3>📚 Academic Excellence</h3>
+                <p>Comprehensive curriculum with both Bangla Medium and English Version programs. Morning and Day shifts available for flexible learning.</p>
+                <a href="academic.php" class="btn btn-outline">Learn More</a>
+            </div>
+            
+            <div class="card">
+                <h3>🎓 Modern Education</h3>
+                <p>Well-equipped classrooms with modern teaching aids and technology integration to enhance learning experience.</p>
+                <a href="academic.php" class="btn btn-outline">View Facilities</a>
+            </div>
+            
+            <div class="card">
+                <h3>🏆 Co-curricular Activities</h3>
+                <p>Diverse sports, cultural events, and clubs to develop students' talents beyond academics.</p>
+                <a href="cocurricular.php" class="btn btn-outline">Explore Activities</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teachers Section -->
+    <section id="teachers" class="section">
+        <h2 class="section-title">Our Esteemed Teachers</h2>
+        <div class="teacher-grid">
+            <?php foreach ($teachers as $teacher): ?>
+                <div class="teacher-item">
+                    <div class="flex items-center">
+                        <div class="w-3 h-3 bg-accent rounded-full mr-3"></div>
+                        <span class="text-gray-300"><?php echo htmlspecialchars($teacher); ?></span>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="cards-grid">
+            <div class="card text-center">
+                <h3>📍 Location</h3>
+                <p class="text-gray-300"><?php echo htmlspecialchars($school_location); ?></p>
+            </div>
+            
+            <div class="card text-center">
+                <h3>📞 Contact</h3>
+                <p class="text-gray-300"><?php echo htmlspecialchars($contact_number); ?></p>
+            </div>
+            
+            <div class="card text-center">
+                <h3>🕒 Office Hours</h3>
+                <p class="text-gray-300">Sunday - Thursday<br>8:00 AM - 5:00 PM</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="max-w-6xl mx-auto">
+            <h3 class="text-2xl font-bold text-accent mb-4">Cambric School and College</h3>
+            <p class="text-gray-400 mb-4">Committed to excellence in education and character building</p>
+            <div class="flex justify-center gap-6 mb-4">
+                <a href="admission.php" class="text-gray-400 hover:text-accent transition-colors">Admission</a>
+                <a href="academic.php" class="text-gray-400 hover:text-accent transition-colors">Academics</a>
+                <a href="cocurricular.php" class="text-gray-400 hover:text-accent transition-colors">Activities</a>
+            </div>
+            <p class="text-gray-500 text-sm">&copy; 2024 Cambric School and College. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Navbar background on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.background = 'rgba(15, 23, 42, 0.98)';
+            } else {
+                navbar.style.background = 'rgba(15, 23, 42, 0.95)';
+            }
+        });
+    </script>
 </body>
 </html>
