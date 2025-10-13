@@ -1,32 +1,45 @@
 <?php
 session_start();
-require_once 'db_config.php';
 
-// Check if user is logged in and is a teacher
+// Redirect if not logged in or not a teacher
 if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true || $_SESSION['role'] !== 'teacher') {
     header("Location: login.php");
     exit;
 }
 
-// Fetch teacher information
-$teacher_info = [];
-$stmt = $conn->prepare("
-    SELECT t.*, u.username 
-    FROM teachers t 
-    JOIN users u ON t.user_id = u.id 
-    WHERE u.id = ?
-");
-$stmt->bind_param("i", $_SESSION['id']);
+require_once 'db_config.php';
+
+// Fetch teacher information from database
+$user_id = $_SESSION['id'];
+$username = $_SESSION['username'];
+$teacher_info = null;
+
+// Try multiple methods to find teacher info
+$stmt = $conn->prepare("SELECT * FROM teachers WHERE user_id = ? OR email = ?");
+$stmt->bind_param("is", $user_id, $username);
 $stmt->execute();
 $result = $stmt->get_result();
 
-if ($result->num_rows === 1) {
+if ($result->num_rows > 0) {
     $teacher_info = $result->fetch_assoc();
+} else {
+    // If still not found, try just by email
+    $stmt2 = $conn->prepare("SELECT * FROM teachers WHERE email = ?");
+    $stmt2->bind_param("s", $username);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+    
+    if ($result2->num_rows > 0) {
+        $teacher_info = $result2->fetch_assoc();
+    }
+    $stmt2->close();
 }
+
 $stmt->close();
 $conn->close();
-?>
 
+// Rest of your my_information.php code remains the same...
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

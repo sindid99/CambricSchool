@@ -1,74 +1,63 @@
 <?php
-session_start(); // Start the session at the very beginning of the script
-
-// Include the database configuration file
+session_start();
 require_once 'db_config.php';
 
-$error_message = ''; // Initialize error message variable
+$error_message = '';
 
-// Check if the form was submitted (either login or guest mode)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (isset($_POST['login'])) {
-        // Handle regular login attempt
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
 
-        // Basic validation: Check if username or password fields are empty
         if (empty($username) || empty($password)) {
             $error_message = "Please enter both username and password.";
         } else {
-            // Prepare a SQL statement to prevent SQL injection attacks.
-            // This is crucial for security.
+            // Prepare SQL statement to prevent SQL injection
             $stmt = $conn->prepare("SELECT id, username, password, role FROM users WHERE username = ?");
-            $stmt->bind_param("s", $username); // 's' denotes a string parameter for username
+            $stmt->bind_param("s", $username);
             $stmt->execute();
-            $result = $stmt->get_result(); // Get the result set from the executed statement
+            $result = $stmt->get_result();
 
-            // Check if a user with the given username was found
             if ($result->num_rows == 1) {
-                $user = $result->fetch_assoc(); // Fetch the user data as an associative array
-
-                // Verify the password.
-                // IMPORTANT: In a real application, you MUST use password_verify() with hashed passwords.
-                // For this demo, we are comparing plain text passwords for simplicity.
+                $user = $result->fetch_assoc();
+                
+                // Verify password (plain text comparison for demo)
+                // In production, use: if (password_verify($password, $user['password']))
                 if ($password === $user['password']) {
-                // Correct way for hashed passwords (uncomment and use this in production):
-                // if (password_verify($password, $user['password'])) {
-
-                    // Password is correct, set session variables to mark the user as logged in
+                    // Set session variables
                     $_SESSION['loggedin'] = true;
                     $_SESSION['id'] = $user['id'];
                     $_SESSION['username'] = $user['username'];
                     $_SESSION['role'] = $user['role'];
 
-                    // Redirect the user to the dashboard page
+                    // Update last login in database
+                    $update_stmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+                    $update_stmt->bind_param("i", $user['id']);
+                    $update_stmt->execute();
+                    $update_stmt->close();
+
+                    // Redirect to dashboard
                     header("Location: dashboard.php");
-                    exit(); // Stop further script execution
+                    exit();
                 } else {
-                    // Password does not match
                     $error_message = "Invalid username or password.";
                 }
             } else {
-                // No user found with that username
                 $error_message = "Invalid username or password.";
             }
-
-            $stmt->close(); // Close the prepared statement
+            $stmt->close();
         }
     } elseif (isset($_POST['guest_mode'])) {
-        // Handle guest mode entry
-        // Set session variables to indicate guest access (not fully logged in)
-        $_SESSION['loggedin'] = false; // User is not authenticated, but allowed to view public content
+        // Handle guest mode
+        $_SESSION['loggedin'] = false;
         $_SESSION['username'] = 'Guest';
         $_SESSION['role'] = 'guest';
-
-        // Redirect to the dashboard page
+        
         header("Location: dashboard.php");
-        exit(); // Stop further script execution
+        exit();
     }
 }
 
-// Close the database connection
 $conn->close();
 ?>
 
@@ -77,102 +66,368 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cambric School and College - Login</title>
-    <!-- Tailwind CSS CDN for styling -->
+    <title>Login - Cambric School and College</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts for 'Inter' font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom CSS for body styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #1a4b8c;
+            --secondary: #f0a500;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+
         body {
-            font-family: 'Inter', sans-serif; /* Apply Inter font */
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Vibrant gradient background */
-            display: flex; /* Use flexbox for centering content */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            min-height: 100vh; /* Minimum height of viewport */
-            margin: 0; /* Remove default body margin */
+            background: linear-gradient(135deg, #1a4b8c 0%, #0d2b52 100%);
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Animation for the main card entrance */
-        @keyframes fadeInScale {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
         }
 
-        .animated-card {
-            animation: fadeInScale 0.5s ease-out forwards;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 1rem;
         }
 
-        /* Input field focus animation */
-        .input-animated:focus {
-            border-color: #4f46e5; /* indigo-600 */
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.5); /* indigo-600 with transparency */
+        .logo {
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        /* Button hover and active animations */
-        .button-animated {
-            transition: all 0.2s ease-in-out;
-            background-image: linear-gradient(to right, #4f46e5, #6366f1); /* Gradient for buttons */
+        .school-name {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-        .button-animated:hover {
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+        }
+
+        .form-container {
+            display: flex;
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-left {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, #0d2b52 100%);
+            color: white;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-right {
+            flex: 1;
+            padding: 3rem;
+        }
+
+        .form-title {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 75, 140, 0.2);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #153a6e;
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            background-image: linear-gradient(to right, #6366f1, #4f46e5); /* Reverse gradient on hover */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        .button-animated:active {
-            transform: translateY(1px);
-            box-shadow: none;
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--dark);
+            margin-top: 1rem;
+        }
+
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: #dee2e6;
+        }
+
+        .divider span {
+            background-color: white;
+            padding: 0 1rem;
+            color: #6c757d;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .register-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .features-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .features-list i {
+            margin-right: 10px;
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .welcome-text {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .info-text {
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                flex-direction: column;
+            }
+            
+            .form-left {
+                padding: 2rem;
+            }
+            
+            .school-name {
+                font-size: 1.8rem;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md animated-card">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Cambric School and College</h2>
-        <h3 class="text-2xl font-semibold text-center text-blue-600 mb-8">Login</h3>
-
-        <?php if (!empty($error_message)): ?>
-            <!-- Display error message if any -->
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline"><?php echo $error_message; ?></span>
-            </div>
-        <?php endif; ?>
-
-        <!-- Login Form -->
-        <form action="login.php" method="POST" class="space-y-6">
-            <div>
-                <label for="username" class="block text-gray-700 text-sm font-medium mb-2">Username</label>
-                <input type="text" id="username" name="username" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out input-animated">
-            </div>
-            <div>
-                <label for="password" class="block text-gray-700 text-sm font-medium mb-2">Password</label>
-                <input type="password" id="password" name="password" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 ease-in-out input-animated">
-            </div>
-            <button type="submit" name="login"
-                    class="w-full text-white py-3 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg transform button-animated">
-                Login
-            </button>
-        </form>
-
-        <div class="mt-6 text-center">
-            <!-- Guest Mode Option -->
-            <form action="login.php" method="POST">
-                <button type="submit" name="guest_mode"
-                        class="w-full bg-gray-500 text-white py-3 rounded-md font-semibold hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:ring-offset-2 transition duration-200 ease-in-out shadow-lg transform hover:scale-105 mt-4 button-animated">
-                    Continue as Guest
-                </button>
-            </form>
-            <!-- Registration Link -->
-            <p class="mt-4 text-gray-600">Don't have an account? <a href="register.php" class="text-blue-600 hover:underline font-medium">Register Here</a></p>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo">CSC</div>
+            <h1 class="school-name">Cambric School and College</h1>
         </div>
-    </div>
+        <p class="subtitle">Welcome Back to Our Educational Community</p>
+    </header>
+
+    <main class="main-content">
+        <div class="form-container">
+            <div class="form-left">
+                <div class="welcome-text">Welcome Back!</div>
+                <p class="info-text">Login to your account to access all the features and resources available to students, teachers, and staff at Cambric School and College.</p>
+                
+                <ul class="features-list">
+                    <li><i class="fas fa-check-circle"></i> Access your personalized dashboard</li>
+                    <li><i class="fas fa-check-circle"></i> View academic progress and grades</li>
+                    <li><i class="fas fa-check-circle"></i> Connect with teachers and classmates</li>
+                    <li><i class="fas fa-check-circle"></i> Stay updated with school announcements</li>
+                </ul>
+            </div>
+            
+            <div class="form-right">
+                <h2 class="form-title">Login</h2>
+                
+                <?php if (!empty($error_message)): ?>
+                    <div class="error-message">
+                        <?php echo $error_message; ?>
+                    </div>
+                <?php endif; ?>
+
+                <form action="login.php" method="POST" id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div class="input-group">
+                            <input type="text" id="username" name="username" placeholder="Enter your username" value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" name="login" class="btn btn-primary">Login</button>
+
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <button type="submit" name="guest_mode" class="btn btn-secondary">Continue as Guest</button>
+
+                    <div class="register-link">
+                        <p>Don't have an account? <a href="register.php">Register Here</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2023 Cambric School and College. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.getElementById('password');
+
+            // Toggle password visibility
+            togglePassword.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.innerHTML = type === 'password' ? '<i class="far fa-eye"></i>' : '<i class="far fa-eye-slash"></i>';
+            });
+        });
+    </script>
 </body>
 </html>
